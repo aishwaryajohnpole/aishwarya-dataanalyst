@@ -74,6 +74,38 @@
   transition: all 0.3s ease;
 }
 
+.scroll-row-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-row-container .scroll-row {
+  overflow-x: hidden;
+  display: flex;
+  gap: 1rem;
+  scroll-behavior: auto; /* we control smooth scrolling manually */
+}
+
+.scroll-row-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  color: #fff;
+  background: rgba(0,0,0,0.4);
+  padding: 0.4rem 0.6rem;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+  transition: background 0.2s;
+}
+.scroll-row-arrow:hover { background: rgba(229,9,20,0.8); }
+
+.scroll-row-arrow.left { left: 5px; }
+.scroll-row-arrow.right { right: 5px; }
+
+
 /* Mobile nav */
 @media (max-width:900px){
   .nav {
@@ -247,6 +279,11 @@
   </div>
 </div>
 
+<div class="scroll-row-container">
+  <div class="scroll-row" role="list" aria-label="Projects"></div>
+  <div class="scroll-row-arrow left"><i class="fas fa-chevron-left"></i></div>
+  <div class="scroll-row-arrow right"><i class="fas fa-chevron-right"></i></div>
+</div>
 
 
   <!-- animated starry background canvas (behind everything) -->
@@ -730,50 +767,114 @@ renderSkills();
 /* -----------------------
    Projects: fetch from GitHub, categorize and render horizontally
    ----------------------- */
-async function loadProjects(){
+async function loadProjects() {
   const container = document.getElementById('projectsContainer');
   container.innerHTML = '';
 
-  try{
+  try {
     const res = await fetch('https://api.github.com/users/Aishwaryajohn97/repos');
     const data = await res.json();
-    if(!Array.isArray(data)) throw new Error('No repos');
+    if (!Array.isArray(data)) throw new Error('No repos');
 
-    const categories = {"Web Development":[], "Data Science":[], "Other":[]};
-    data.forEach(repo=>{
-      const n = repo.name.toLowerCase();
-      if(n.includes('portfolio') || n.includes('website') || n.includes('web')) categories['Web Development'].push(repo);
-      else if(n.includes('model') || n.includes('ml') || n.includes('data') || n.includes('analysis')) categories['Data Science'].push(repo);
-      else categories['Other'].push(repo);
+    const categories = {
+      "Data Science": { keywords: ['data', 'analysis', 'tableau', 'sql', 'python', 'ml', 'machine learning', 'predictive', 'analytics', 'eda', 'statistics','models','pre-trained'], list: [] },
+      "Web Development": { keywords: ['web', 'website', 'frontend', 'backend', 'react', 'html', 'css', 'javascript', 'node'], list: [] },
+      "Other": { keywords: [], list: [] }
+    };
+
+    // Categorize repos by scoring
+    data.forEach(repo => {
+      const desc = (repo.description || "").toLowerCase();
+      let scores = {};
+
+      for (const cat in categories) {
+        const keywords = categories[cat].keywords;
+        scores[cat] = keywords.reduce((score, kw) => score + (desc.includes(kw) ? 1 : 0), 0);
+      }
+
+      // Choose category with max score
+      const maxScore = Math.max(...Object.values(scores));
+      let chosenCategory = Object.keys(scores).find(cat => scores[cat] === maxScore);
+
+      // If no keywords matched, put in Other
+      if (maxScore === 0) chosenCategory = 'Other';
+
+      categories[chosenCategory].list.push(repo);
     });
 
-    for(const catName of Object.keys(categories)){
-      const list = categories[catName];
-      if(list.length === 0) continue;
-      const title = document.createElement('h3'); title.className = 'category-title'; title.textContent = catName;
+    // Order of categories in display (Data Science first)
+    const displayOrder = ["Data Science", "Web Development", "Other"];
+
+    displayOrder.forEach(catName => {
+      const list = categories[catName].list;
+      if (list.length === 0) return;
+
+      const title = document.createElement('h3');
+      title.className = 'category-title';
+      title.textContent = catName;
       container.appendChild(title);
 
-      const row = document.createElement('div'); row.className = 'scroll-row';
-      list.forEach(repo=>{
-        const card = document.createElement('div'); card.className = 'media-card card';
-        const screenshot = `images/${repo.name.replace(/\s+/g,'_')}.png`;
+      const row = document.createElement('div');
+      row.className = 'scroll-row';
+
+      list.forEach(repo => {
+        const card = document.createElement('div');
+        card.className = 'media-card card';
+        const screenshot = `images/${repo.name.replace(/\s+/g, '_')}.png`;
         card.innerHTML = `
           <img src="${screenshot}" alt="${repo.name}" onerror="this.src='images/default_project.png'">
           <div class="card-body">
             <h3>${repo.name}</h3>
-            <p>${repo.description ? repo.description : 'No description available'}</p>
+            <p>${repo.description || 'No description available'}</p>
             <a class="overlay-link" href="${repo.html_url}" target="_blank" rel="noreferrer">View on GitHub</a>
           </div>
         `;
         row.appendChild(card);
       });
+
       container.appendChild(row);
-    }
-  }catch(err){
+    });
+
+  } catch (err) {
     console.error('Error loading projects', err);
     container.innerHTML = '<p style="color:#ccc;">Unable to load projects from GitHub.</p>';
   }
 }
+
+function startAutoScroll() {
+  const containers = document.querySelectorAll('.scroll-row-container');
+  containers.forEach(container => {
+    const row = container.querySelector('.scroll-row');
+    const cards = Array.from(row.children);
+    // clone children for seamless scroll
+    cards.forEach(card => row.appendChild(card.cloneNode(true)));
+
+    let scrollPos = 0;
+    const speed = 0.5;
+    let paused = false;
+
+    container.addEventListener('mouseenter', () => paused = true);
+    container.addEventListener('mouseleave', () => paused = false);
+
+    // arrow controls
+    container.querySelector('.scroll-row-arrow.left').addEventListener('click', () => scrollPos -= 300);
+    container.querySelector('.scroll-row-arrow.right').addEventListener('click', () => scrollPos += 300);
+
+    function animate() {
+      if (!paused) {
+        scrollPos += speed;
+        if (scrollPos >= row.scrollWidth / 2) scrollPos = 0;
+        row.scrollLeft = scrollPos;
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  });
+}
+
+startAutoScroll()
+
+
 loadProjects();
 
 /* Ensure fade-in triggers on load */
