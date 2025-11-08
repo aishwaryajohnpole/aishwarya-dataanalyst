@@ -49,11 +49,52 @@
     border-bottom: 1px solid rgba(255,255,255,0.03);
   }
   .brand{font-weight:800;color:var(--netflix-red);font-size:1.4rem;letter-spacing:1px;}
+
   .nav{display:flex;gap:0.9rem;align-items:center;}
   .nav a{color:#fff;font-weight:600;text-decoration:none;padding:0.5rem 0.6rem;border-radius:6px;transition:color .18s,background .18s;}
   .nav a:hover{color:var(--netflix-red);background:rgba(255,255,255,0.02);}
   .icons a{color:#fff;margin-left:0.6rem;font-size:1.2rem;}
   .icons a:hover{color:var(--netflix-red);}
+
+  /* Hamburger button */
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 20px;
+  cursor: pointer;
+}
+.burger span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background: #fff;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Mobile nav */
+@media (max-width:900px){
+  .nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100%;
+    width: 250px;
+    background: rgba(0,0,0,0.95);
+    flex-direction: column;
+    padding-top: 6rem;
+    gap: 1.5rem;
+    transition: right 0.3s ease;
+  }
+  .nav.show {
+    right: 0;
+  }
+  .burger {
+    display: flex;
+  }
+}
 
   /* Sections */
   section{position:relative;padding:3.5rem 1.5rem;}
@@ -230,6 +271,13 @@
       <a href="https://github.com/Aishwaryajohn97" target="_blank" rel="noreferrer"><i class="fab fa-github"></i></a>
       <a href="mailto:aishwaryajohnpolemadhu@gmail.com"><i class="fas fa-envelope"></i></a>
     </div>
+
+    <div class="burger" id="burgerMenu" aria-label="Toggle navigation" aria-expanded="false">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
   </header>
 
   <!-- HERO -->
@@ -430,6 +478,17 @@ async function populateHeroCarousel(){
   }
 }
 populateHeroCarousel();
+
+/* Burger menu toggle */
+
+const burger = document.getElementById('burgerMenu');
+const nav = document.querySelector('.nav');
+
+burger.addEventListener('click', () => {
+  nav.classList.toggle('show');
+  const expanded = burger.getAttribute('aria-expanded') === 'true';
+  burger.setAttribute('aria-expanded', !expanded);
+});
 
 /* -----------------------
    Experience cards + modal behavior
