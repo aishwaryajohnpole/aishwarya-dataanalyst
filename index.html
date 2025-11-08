@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aishwarya John Pole — Portfolio</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+  :root{
+    --netflix-red:#e50914;
+    --card-bg: rgba(18,18,18,0.85);
+    --card-hover-shadow: 0 0 40px rgba(229,9,20,0.65);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;font-family: 'Montserrat', sans-serif;}
+  html,body{height:100%;}
+  body{
+    background:#000;
+    color:#eee;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    position:relative;
+  }
+
+  /* Canvas background sits behind everything */
+  canvas#bgCanvas{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+  }
+
+  /* Header */
+  .header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:1rem 1.5rem;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .brand{font-weight:800;color:var(--netflix-red);font-size:1.4rem;letter-spacing:1px;}
+  .nav{display:flex;gap:0.9rem;align-items:center;}
+  .nav a{color:#fff;font-weight:600;text-decoration:none;padding:0.5rem 0.6rem;border-radius:6px;transition:color .18s,background .18s;}
+  .nav a:hover{color:var(--netflix-red);background:rgba(255,255,255,0.02);}
+  .icons a{color:#fff;margin-left:0.6rem;font-size:1.2rem;}
+  .icons a:hover{color:var(--netflix-red);}
+
+  /* Sections */
+  section{position:relative;padding:3.5rem 1.5rem;}
+  section::before{ /* gentle radial sheen behind sections */
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.02), transparent 60%);
+    mix-blend-mode: screen;
+  }
+  h2{color:var(--netflix-red);margin-bottom:1rem;font-size:1.6rem;}
+
+  /* Hero - full screen */
+  #heroSection{height:100vh;min-height:640px;display:block;overflow:hidden;padding:0;}
+  .hero-inner{position:relative;height:100%;width:100%;}
+  .carousel-track{display:flex;height:100%;transition:transform .6s ease;}
+  .carousel-card{min-width:100%;height:100%;}
+  .carousel-card img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  /* overlay covers entire hero and dims the images - content sits above overlay */
+  #heroOverlay{
+    position:absolute;inset:0;background:rgba(0,0,0,0.72);z-index:3;
+  }
+  /* hero content on top-left-ish (left-bottom like Netflix) */
+  .hero-content{
+    position:absolute;left:4%;bottom:8%;z-index:4;max-width:720px;padding:1rem 1.25rem;
+  }
+  .hero-title{font-size:3rem;color:var(--netflix-red);font-weight:800;margin-bottom:.3rem;line-height:1;}
+  .hero-sub{font-size:1.05rem;color:#fff;margin-bottom:1rem;}
+  .hero-desc{color:#ccc;max-width:720px;margin-bottom:1.1rem;line-height:1.45;}
+  .hero-buttons{display:flex;gap:0.8rem;flex-wrap:wrap;}
+  .btn{background:var(--netflix-red);color:#fff;border:0;padding:.6rem 1rem;border-radius:6px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;transition:transform .18s,box-shadow .18s;}
+  .btn:hover{transform:translateY(-3px);box-shadow: var(--card-hover-shadow);}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#fff;}
+
+  /* Generic card used by projects/experience/skills */
+  .card{
+    background:var(--card-bg);
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 0 12px rgba(0,0,0,0.6);
+    transition:transform .18s,box-shadow .18s;
+  }
+  .card:hover{transform:translateY(-6px);box-shadow:var(--card-hover-shadow);}
+
+  /* scroll row for horizontal lists */
+  .scroll-row{display:flex;gap:1rem;overflow-x:auto;padding-bottom:12px;scroll-behavior:smooth;}
+  .scroll-row::-webkit-scrollbar{height:10px;}
+  .scroll-row::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:10px;}
+
+  /* project / experience card specifics */
+  .media-card{min-width:260px;max-width:320px;flex:0 0 auto;border-radius:10px;overflow:hidden;}
+  .media-card img{width:100%;height:160px;object-fit:cover;display:block;}
+  .media-card .card-body{padding:10px;}
+  .media-card h3{font-size:1rem;margin-bottom:.4rem;}
+  .media-card p{font-size:.9rem;color:#cfcfcf;min-height:44px;}
+
+  .overlay-link{display:inline-block;padding:.4rem .6rem;border-radius:6px;background:rgba(0,0,0,0.25);color:#fff;margin-top:.6rem;border:1px solid rgba(255,255,255,0.04);text-decoration:none;}
+  .overlay-link:hover{background:var(--netflix-red);box-shadow:var(--card-hover-shadow);color:#fff;}
+
+  /* Skills categories & tags */
+  .skills-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;}
+  .skills-group{min-width:260px;flex:1 1 300px;padding:18px;border-radius:12px;background:radial-gradient(circle, rgba(20,20,20,0.92), rgba(0,0,0,0.7));}
+  .skills-group h3{margin-bottom:0.8rem;color:var(--netflix-red);text-align:center;}
+  .skill-tag{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .6rem;margin:.25rem;background:rgba(255,255,255,0.03);border-radius:6px;font-size:.9rem;color:#eee;}
+
+  /* summary/career full-width card */
+  .full-card{width:100%;padding:28px;border-radius:12px;background:radial-gradient(circle, rgba(20,20,20,0.9), rgba(10,10,10,0.75));box-shadow:0 0 18px rgba(255,0,0,0.16);}
+
+  /* modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);z-index:1200;}
+  .modal-inner{background:#0f0f0f;padding:18px;border-radius:12px;max-width:780px;width:95%;max-height:85vh;overflow:auto;border:1px solid rgba(255,255,255,0.03);}
+  .modal-inner img{display:block;margin:0 auto 12px auto;max-width:45%;height:auto;border-radius:8px;}
+  .modal-close{position:absolute;right:18px;top:18px;color:var(--netflix-red);font-size:1.6rem;cursor:pointer;}
+
+  /* small responsive tweaks */
+  @media (max-width:900px){
+    .hero-title{font-size:2.2rem;}
+    .hero-content{left:3%;bottom:7%;}
+    .modal-inner img{max-width:60%;}
+  }
+  @media (max-width:600px){
+    .hero-title{font-size:1.6rem;}
+    .hero-sub{font-size:.95rem;}
+    .hero-desc{font-size:.9rem;}
+    .carousel-card img{filter:brightness(0.6);}
+    .modal-inner img{max-width:100%;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- animated starry background canvas (behind everything) -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <!-- Header / Nav -->
+  <header class="header" role="banner">
+    <div class="brand">PORTFOLIO</div>
+
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      <a href="#heroSection">Home</a>
+      <a href="#experienceSection">Experience</a>
+      <a href="#projectsSection">Projects</a>
+      <a href="#skillsSection">Skills</a>
+      <a href="#summarySection">Summary</a>
+      <a href="#careerSection">Interests</a>
+    </nav>
+
+    <div class="icons">
+      <a href="https://www.linkedin.com/in/aishwarya-john-pole-b23452236" target="_blank" rel="noreferrer"><i class="fab fa-linkedin"></i></a>
+      <a href="https://github.com/Aishwaryajohn97" target="_blank" rel="noreferrer"><i class="fab fa-github"></i></a>
+      <a href="mailto:aishwaryajohnpolemadhu@gmail.com"><i class="fas fa-envelope"></i></a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="heroSection" aria-label="Hero" >
+    <div class="hero-inner" style="height:100%;">
+      <div class="carousel-track" id="carouselTrack" aria-hidden="true"></div>
+
+      <!-- Overlay covers the whole hero to darken images while content sits above -->
+      <div id="heroOverlay" aria-hidden="true"></div>
+
+      <div class="hero-content" role="region" aria-label="Hero content">
+        <div class="hero-title">Aishwarya John Pole</div>
+        <div class="hero-sub">Data Analyst | Business Analyst</div>
+        <div class="hero-desc">MSc Data Science and Analytics graduate passionate about turning data into actionable insights. Experienced in SQL, Python, Tableau, and producing business dashboards.</div>
+
+        <div class="hero-buttons" role="toolbar">
+          <button class="btn" id="previewResumeBtn" onclick="window.open('resume.pdf','_blank')" title="Preview resume"><i class="fas fa-eye"></i> Preview</button>
+          <button class="btn" id="downloadResumeBtn" onclick="downloadResume()" title="Download resume"><i class="fas fa-download"></i> Download</button>
+          <button class="btn ghost" onclick="document.getElementById('skillsSection').scrollIntoView({behavior:'smooth'})"><i class="fas fa-info-circle"></i> More Info</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experienceSection" class="fade-in" aria-labelledby="experienceSectionHeading">
+    <h2 id="experienceSectionHeading">Experience</h2>
+    <div class="scroll-row" id="experienceScroll" role="list"></div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projectsSection" class="fade-in" aria-labelledby="projectsSectionHeading">
+    <h2 id="projectsSectionHeading">Projects</h2>
+    <div id="projectsContainer" style="display:flex;flex-direction:column;gap:1rem;"></div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skillsSection" class="fade-in" aria-labelledby="skillsSectionHeading">
+    <h2 id="skillsSectionHeading">Skills</h2>
+    <div class="skills-grid" id="skillsGrid" aria-hidden="false"></div>
+  </section>
+
+  <!-- PROFESSIONAL SUMMARY -->
+  <section id="summarySection" class="fade-in" aria-labelledby="summaryHeading">
+    <h2 id="summaryHeading">Professional Summary</h2>
+    <div class="full-card">
+      <p>Dedicated and results-driven Data & Business Analyst with an MSc in Data Science and Analytics and over 1.5 years of 
+professional experience in data operations, annotation, and process optimization. Skilled in transforming raw data into 
+meaningful insights, creating dashboards, and supporting business decision-making through statistical analysis, 
+visualization, and reporting. Experienced in quality assurance, requirement gathering, and cross-functional 
+communication with stakeholders in fast-paced, data-intensive environments. Proficient in SQL, Excel, Python, and 
+Tableau, with strong academic and practical exposure to machine learning, NLP, and predictive analytics. Demonstrated 
+success in both technical and business domains by delivering high-precision data solutions, mentoring teams, and driving 
+operational efficiency. Actively seeking opportunities to leverage technical expertise and analytical mindset to contribute 
+as a Data Analyst or Business Analyst.  </p>
+    </div>
+  </section>
+
+  <!-- CAREER INTERESTS -->
+  <section id="careerSection" class="fade-in" aria-labelledby="careerHeading">
+    <h2 id="careerHeading">Career Interests</h2>
+    <div class="full-card">
+      <ul>
+        <li><strong>Data Analytics & Business Intelligence – </strong>Applying statistical techniques, SQL, Excel, and visualization tools (Tableau, Power 
+BI) to generate actionable insights and support data-driven decisions. </li>
+
+        <li><strong>Business Analysis & Process Improvement – </strong>Gathering requirements, documenting workflows, and collaborating with 
+stakeholders to optimize operations and deliver business value.</li>
+
+        <li><strong>Data Science & Machine Learning (Entry-Level) –</strong> Exploring predictive modeling, NLP, and data preprocessing to contribute 
+to advanced analytics and AI-driven solutions. </li>
+
+        <li><strong>Cross-Functional Collaboration –</strong> Bridging the gap between technical teams and business stakeholders by translating data 
+insights into clear recommendations. </li>
+
+        <li><strong>Continuous Learning –</strong> Expanding knowledge in advanced SQL, Python analytics, cloud-based data platforms (AWS, Azure), 
+and business process modeling. </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Modal for Experience Details -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-inner" role="document">
+      <button class="modal-close" aria-label="Close" onclick="closeModal()">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+<script>
+/* -----------------------
+   Background star canvas
+   ----------------------- */
+const bg = document.getElementById('bgCanvas');
+const ctx = bg.getContext('2d');
+let w = bg.width = innerWidth;
+let h = bg.height = innerHeight;
+window.addEventListener('resize', ()=>{ w = bg.width = innerWidth; h = bg.height = innerHeight; setupStars(); });
+
+let stars = [];
+function setupStars(){
+  stars = [];
+  const count = Math.max(80, Math.round((w*h)/90000)); // density scaled by screen
+  for(let i=0;i<count;i++){
+    stars.push({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      r: Math.random()*1.4 + 0.4,
+      dx: (Math.random()-0.5)*0.25,
+      dy: (Math.random()-0.5)*0.25,
+      alpha: 0.25 + Math.random()*0.6
+    });
+  }
+}
+setupStars();
+
+function drawStars(){
+  ctx.clearRect(0,0,w,h);
+  for(const s of stars){
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
+    ctx.fill();
+    s.x += s.dx; s.y += s.dy;
+    if(s.x<0) s.x = w;
+    if(s.x> w) s.x = 0;
+    if(s.y<0) s.y = h;
+    if(s.y> h) s.y = 0;
+  }
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* -----------------------
+   Helper / UI behaviors
+   ----------------------- */
+function downloadResume(){
+  const a = document.createElement('a');
+  a.href = 'resume.pdf';
+  a.download = 'Aishwarya_Resume.pdf';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* simple fade-in on scroll (adds class to elements with 'fade-in') */
+function applyFadeIn(){
+  document.querySelectorAll('.fade-in').forEach(el=>{
+    const rect = el.getBoundingClientRect();
+    if(rect.top < innerHeight - 80) el.classList.add('show');
+  });
+}
+window.addEventListener('scroll', applyFadeIn);
+window.addEventListener('load', applyFadeIn);
+
+/* -----------------------
+   Hero carousel (auto-slide)
+   ----------------------- */
+let heroIndex = 0;
+async function populateHeroCarousel(){
+  const track = document.getElementById('carouselTrack');
+  // fetch repos from GitHub
+  try{
+    const res = await fetch('https://api.github.com/users/Aishwaryajohn97/repos');
+    const data = await res.json();
+    const top = (Array.isArray(data) ? data : []).slice(0,5);
+    if(top.length === 0){
+      // fallback single image
+      const card = document.createElement('div'); card.className='carousel-card';
+      card.innerHTML = `<img src="images/default_project.png" alt="hero">`;
+      track.appendChild(card);
+    } else {
+      for(const r of top){
+        const card = document.createElement('div'); card.className='carousel-card';
+        // try images/<repoName>.png - user should name screenshots accordingly
+        const src = `images/${r.name}.png`;
+        card.innerHTML = `<img src="${src}" alt="${r.name}" onerror="this.src='images/default_project.png'">`;
+        track.appendChild(card);
+      }
+    }
+    // auto-slide
+    setInterval(()=>{
+      if(track.children.length === 0) return;
+      heroIndex = (heroIndex + 1) % track.children.length;
+      track.style.transform = `translateX(-${heroIndex * 100}%)`;
+    }, 4500);
+  }catch(err){
+    console.error('Hero carousel load error', err);
+  }
+}
+populateHeroCarousel();
+
+/* -----------------------
+   Experience cards + modal behavior
+   ----------------------- */
+/* Add all experiences here — add or remove objects as needed */
+const experiences = [
+  {
+    id: 'pole',
+    title: 'Full Stack Developer | UX/UI Designer',
+    company: 'Pole Digital Solutions',
+    period: 'Sep 2024 – Present',
+    img: 'images/pole_digital.png',
+    details: [
+      'Designed and developed responsive websites tailored to small business needs, from initial wireframes to deployment. ',
+      'Built custom Point-of-Sale (POS) software solutions to streamline business operations.',
+      'Delivered end-to-end branding packages including logo design, visual identity, and brand guidelines. ',
+      'Consulted with small business owners to define digital strategy, marketing goals, and user experience.',
+      'Created professional portfolios and landing pages to boost online presence and conversions.',
+      'Managed hosting, domain setup, and technical support post-launch.',
+      'Applied SEO best practices and basic analytics integration to improve search visibility.',
+      'Coordinated every stage of project development — strategy, design, coding, testing, launch, and maintenance.', 
+      'Used tools like WordPress, React, Figma, Photoshop, or other relevant platforms depending on client needs.', 
+      'Provided ongoing support and updates, acting as a one-stop digital partner for clients.',
+      'Conducted detailed sprint planning and managed sprints using Jira and Confluence.',
+      'Ensured client SLA compliance and reported on system uptime and performance.',
+      'Worked closely with product managers to turn specifications into deliverable features.',
+      'Monitored website status and uptime for client deployments using Netlify/Vercel dashboards.', 
+       'Proactively debugged code and addressed reliability issues impacting business-critical systems.',
+       'Worked closely with clients to prioritize features based on consumer feedback and backlog grooming.',
+    ]
+  },
+  {
+    id: 'savills',
+    title: 'Cover Receptionist',
+    company: 'Savills, London',
+    period: 'Jul 2023 – Aug 2024',
+    img: 'images/savills.png',
+    details: [
+         'Provided front desk coverage for 75+ commercial and residential sites, often filling in on short notice and adapting quickly to new environments.', 
+         'Greeted and assisted high volumes of clients, tenants, and contractors, maintaining a professional and welcoming demeanor.',
+         'Handled multi-line switchboard calls, relaying messages, transferring calls, and responding to inquiries efficiently.',
+         'Managed access control systems, issued visitor badges, and maintained accurate visitor logs.',
+         'Oversaw meeting room bookings and calendar coordination for site teams and building managers.',  
+         'Logged and distributed incoming mail and courier packages, ensuring prompt delivery to relevant departments.',
+         'Reported maintenance issues, liaised with site managers and cleaning staff to maintain presentation standards.',
+         'Supported administrative duties such as email correspondence, data entry, and light filing when required.',
+         'Maintained strict confidentiality and ensured GDPR compliance in all front desk procedures.',
+    ]
+  },
+  {
+    id: 'wipro',
+    title: 'Senior Associate – Data Annotation & LiDAR',
+    company: 'Wipro Limited',
+    period: 'Feb 2019 – Sep 2020',
+    img: 'images/wipro.png',
+    description: 'Worked on the Waymo self-driving car project, performing high-precision annotation of 3D LiDAR point cloud data to support training and validation of AI/ML perception models. Operated within a high-performance team in a fast-paced, accuracy-driven environment to meet aggressive production goals. Contributed to annotation processes that supported the training and validation of machine learning models used in autonomous vehicle perception systems.',
+    details: [
+      'Annotated 3D point cloud, image, and video datasets using proprietary software, supporting autonomous navigation systems.', 
+      'Integrated camera and LiDAR data for sensor fusion tasks supporting advanced machine learning model accuracy.',
+      'Ensured data integrity and consistency across large datasets to meet quality standards for training AI models.', 
+      'Conducted root cause analysis on labeling errors and created feedback loops to inform tool and SOP updates.', 
+     'Collaborated in a fast-paced, innovation-driven team focused on continuous improvement and model accuracy.',
+     'Provided technical onboarding to 60+ new associates, helping them ramp up in less time with greater accuracy.', 
+    'Helped adapt applications and task flows in response to tool upgrades and team-wide project pivots.',
+     
+    ]
+  }
+];
+
+function renderExperiences(){
+  const container = document.getElementById('experienceScroll');
+  container.innerHTML = '';
+  experiences.forEach(exp=>{
+    const el = document.createElement('div');
+    el.className = 'media-card card';
+    el.setAttribute('role','listitem');
+    el.innerHTML = `
+      <img src="${exp.img}" alt="${exp.title}" onerror="this.src='images/default_project.png'">
+      <div class="card-body">
+        <h3>${exp.title}</h3>
+        <p>${exp.company} · ${exp.period}</p>
+        <button class="btn" onclick="openExperience('${exp.id}')"><i class="fas fa-info-circle"></i> View Details</button>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+renderExperiences();
+
+function openExperience(id){
+  const e = experiences.find(x=>x.id===id);
+  if(!e) return;
+  const modal = document.getElementById('modal');
+  const body = document.getElementById('modalBody');
+  body.innerHTML = `
+    <img src="${e.img}" alt="${e.title}" onerror="this.src='images/default_project.png'">
+    <h3 style="margin-top:6px">${e.title}</h3>
+    <p style="color:#ccc;margin-bottom:8px">${e.company} · ${e.period}</p>
+    <ul style="color:#ddd;padding-left:18px">${e.details.map(d=>`<li>${d}</li>`).join('')}</ul>
+  `;
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden','false');
+}
+function closeModal(){
+  const modal = document.getElementById('modal');
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden','true');
+}
+
+/* close modal on background click or Escape */
+document.getElementById('modal').addEventListener('click', (ev)=>{
+  if(ev.target === ev.currentTarget) closeModal();
+});
+document.addEventListener('keydown',(ev)=>{ if(ev.key === 'Escape') closeModal(); });
+
+/* -----------------------
+   Skills rendering
+   ----------------------- */
+const skillsData = {
+  "Programming & Databases": [
+    {name: "SQL", icon: "fas fa-database"},
+    {name: "Python (Pandas, NumPy, Matplotlib, Seaborn)", icon: "fab fa-python"},
+    {name: "R (basics)", icon: "fas fa-code"}
+  ],
+  "Data Visualization & Reporting": [
+    {name:"Tableau", icon:"fas fa-chart-bar"},
+    {name:"Power BI", icon:"fas fa-chart-line"},
+    {name:"MS Excel (Advanced, Pivot Tables, Dashboards)", icon:"fas fa-file-excel"}
+  ],
+  "Data Analytics & Machine Learning": [
+    {name:"Data Cleaning", icon:"fas fa-broom"},
+    {name:"EDA", icon:"fas fa-search"},
+    {name:"Statistical Analysis", icon:"fas fa-chart-pie"},
+    {name:"Predictive Modeling", icon:"fas fa-brain"},
+    {name:"NLP", icon:"fas fa-comments"}
+  ],
+  "Business & Process Skills": [
+    {name:"Requirement Gathering", icon:"fas fa-clipboard-list"},
+    {name:"Stakeholder Communication", icon:"fas fa-users"},
+    {name:"Process Documentation", icon:"fas fa-file-alt"},
+    {name:"Workflow Optimization", icon:"fas fa-cogs"},
+    {name:"Agile & JIRA", icon:"fas fa-tasks"}
+  ],
+  "Other Tools": [
+    {name:"Google Suite", icon:"fab fa-google"},
+    {name:"MS Office", icon:"fas fa-file"},
+    {name:"QA Dashboards", icon:"fas fa-tachometer-alt"},
+    {name:"Proprietary Annotation Tools", icon:"fas fa-tools"}
+  ]
+};
+
+function renderSkills(){
+  const grid = document.getElementById('skillsGrid');
+  grid.innerHTML = '';
+  for(const cat in skillsData){
+    const wrap = document.createElement('div');
+    wrap.className = 'skills-group skills-card card';
+    wrap.innerHTML = `<h3>${cat}</h3>`;
+    const html = skillsData[cat].map(s => `<span class="skill-tag"><i class="${s.icon}"></i> ${s.name}</span>`).join('');
+    wrap.innerHTML += html;
+    grid.appendChild(wrap);
+  }
+}
+renderSkills();
+
+/* -----------------------
+   Projects: fetch from GitHub, categorize and render horizontally
+   ----------------------- */
+async function loadProjects(){
+  const container = document.getElementById('projectsContainer');
+  container.innerHTML = '';
+
+  try{
+    const res = await fetch('https://api.github.com/users/Aishwaryajohn97/repos');
+    const data = await res.json();
+    if(!Array.isArray(data)) throw new Error('No repos');
+
+    const categories = {"Web Development":[], "Data Science":[], "Other":[]};
+    data.forEach(repo=>{
+      const n = repo.name.toLowerCase();
+      if(n.includes('portfolio') || n.includes('website') || n.includes('web')) categories['Web Development'].push(repo);
+      else if(n.includes('model') || n.includes('ml') || n.includes('data') || n.includes('analysis')) categories['Data Science'].push(repo);
+      else categories['Other'].push(repo);
+    });
+
+    for(const catName of Object.keys(categories)){
+      const list = categories[catName];
+      if(list.length === 0) continue;
+      const title = document.createElement('h3'); title.className = 'category-title'; title.textContent = catName;
+      container.appendChild(title);
+
+      const row = document.createElement('div'); row.className = 'scroll-row';
+      list.forEach(repo=>{
+        const card = document.createElement('div'); card.className = 'media-card card';
+        const screenshot = `images/${repo.name.replace(/\s+/g,'_')}.png`;
+        card.innerHTML = `
+          <img src="${screenshot}" alt="${repo.name}" onerror="this.src='images/default_project.png'">
+          <div class="card-body">
+            <h3>${repo.name}</h3>
+            <p>${repo.description ? repo.description : 'No description available'}</p>
+            <a class="overlay-link" href="${repo.html_url}" target="_blank" rel="noreferrer">View on GitHub</a>
+          </div>
+        `;
+        row.appendChild(card);
+      });
+      container.appendChild(row);
+    }
+  }catch(err){
+    console.error('Error loading projects', err);
+    container.innerHTML = '<p style="color:#ccc;">Unable to load projects from GitHub.</p>';
+  }
+}
+loadProjects();
+
+/* Ensure fade-in triggers on load */
+window.addEventListener('load', applyFadeIn);
+
+</script>
+
+</body>
+</html>
