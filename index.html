@@ -279,11 +279,7 @@
   </div>
 </div>
 
-<div class="scroll-row-container">
-  <div class="scroll-row" role="list" aria-label="Projects"></div>
-  <div class="scroll-row-arrow left"><i class="fas fa-chevron-left"></i></div>
-  <div class="scroll-row-arrow right"><i class="fas fa-chevron-right"></i></div>
-</div>
+
 
 
   <!-- animated starry background canvas (behind everything) -->
@@ -345,6 +341,7 @@
     <h2 id="experienceSectionHeading">Experience</h2>
     <div class="scroll-row" id="experienceScroll" role="list"></div>
   </section>
+
 
   <!-- PROJECTS -->
   <section id="projectsSection" class="fade-in" aria-labelledby="projectsSectionHeading">
@@ -840,39 +837,6 @@ async function loadProjects() {
     container.innerHTML = '<p style="color:#ccc;">Unable to load projects from GitHub.</p>';
   }
 }
-
-function startAutoScroll() {
-  const containers = document.querySelectorAll('.scroll-row-container');
-  containers.forEach(container => {
-    const row = container.querySelector('.scroll-row');
-    const cards = Array.from(row.children);
-    // clone children for seamless scroll
-    cards.forEach(card => row.appendChild(card.cloneNode(true)));
-
-    let scrollPos = 0;
-    const speed = 0.5;
-    let paused = false;
-
-    container.addEventListener('mouseenter', () => paused = true);
-    container.addEventListener('mouseleave', () => paused = false);
-
-    // arrow controls
-    container.querySelector('.scroll-row-arrow.left').addEventListener('click', () => scrollPos -= 300);
-    container.querySelector('.scroll-row-arrow.right').addEventListener('click', () => scrollPos += 300);
-
-    function animate() {
-      if (!paused) {
-        scrollPos += speed;
-        if (scrollPos >= row.scrollWidth / 2) scrollPos = 0;
-        row.scrollLeft = scrollPos;
-      }
-      requestAnimationFrame(animate);
-    }
-    animate();
-  });
-}
-
-startAutoScroll()
 
 
 loadProjects();
