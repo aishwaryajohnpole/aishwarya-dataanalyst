@@ -143,21 +143,83 @@
     .carousel-card img{filter:brightness(0.6);}
     .modal-inner img{max-width:100%;}
   }
+  .watch-card{
+  width:140px;
+  height:180px;
+  background: rgba(255,255,255,0.05);
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+.watch-card:hover{
+  transform: scale(1.08);
+  box-shadow: 0 0 25px var(--netflix-red);
+}
+.watch-card .avatar{
+  font-size:3rem;
+  margin-bottom:1rem;
+  color:#fff;
+}
+.watch-card .role{
+  font-size:1.1rem;
+  font-weight:600;
+  color:#fff;
+}
+
 </style>
 </head>
 <body>
+
+ <!-- Who's Watching Overlay -->
+<div id="whosWatchingOverlay" style="
+  position:fixed;
+  inset:0;
+  background:#111;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  text-align:center;
+  font-family: 'Montserrat', sans-serif;
+">
+  <h1 style="color:var(--netflix-red); font-size:3rem; margin-bottom:2rem; letter-spacing:2px;">Who's Watching?</h1>
+  
+  <div style="display:flex; gap:2rem; flex-wrap:wrap; justify-content:center;">
+    <div class="watch-card" onclick="enterPortfolio('Recruiter')">
+      <div class="avatar"><i class="fas fa-user-tie"></i></div>
+      <div class="role">Recruiter</div>
+    </div>
+    <div class="watch-card" onclick="enterPortfolio('Hiring Manager')">
+      <div class="avatar"><i class="fas fa-briefcase"></i></div>
+      <div class="role">Hiring Manager</div>
+    </div>
+    <div class="watch-card" onclick="enterPortfolio('Collaborator')">
+      <div class="avatar"><i class="fas fa-users"></i></div>
+      <div class="role">Collaborator</div>
+    </div>
+  </div>
+</div>
+
+
 
   <!-- animated starry background canvas (behind everything) -->
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
   <!-- Header / Nav -->
   <header class="header" role="banner">
-    <div class="brand">PORTFOLIO</div>
+    <div class="brand">DATAFLIX</div>
 
     <nav class="nav" role="navigation" aria-label="Main navigation">
       <a href="#heroSection">Home</a>
       <a href="#experienceSection">Experience</a>
       <a href="#projectsSection">Projects</a>
+      <a href="#certificationsSection">Certifications</a>
       <a href="#skillsSection">Skills</a>
       <a href="#summarySection">Summary</a>
       <a href="#careerSection">Interests</a>
@@ -180,12 +242,13 @@
 
       <div class="hero-content" role="region" aria-label="Hero content">
         <div class="hero-title">Aishwarya John Pole</div>
+        <div class="hero-title">Data Analyst Portfolio</div>
         <div class="hero-sub">Data Analyst | Business Analyst</div>
         <div class="hero-desc">MSc Data Science and Analytics graduate passionate about turning data into actionable insights. Experienced in SQL, Python, Tableau, and producing business dashboards.</div>
 
         <div class="hero-buttons" role="toolbar">
-          <button class="btn" id="previewResumeBtn" onclick="window.open('resume.pdf','_blank')" title="Preview resume"><i class="fas fa-eye"></i> Preview</button>
-          <button class="btn" id="downloadResumeBtn" onclick="downloadResume()" title="Download resume"><i class="fas fa-download"></i> Download</button>
+          <button class="btn" id="previewResumeBtn" onclick="window.open('resume.pdf','_blank')" title="Preview resume"><i class="fas fa-eye"></i> Preview Resume</button>
+          <button class="btn" id="downloadResumeBtn" onclick="downloadResume()" title="Download resume"><i class="fas fa-download"></i> Download resume </button>
           <button class="btn ghost" onclick="document.getElementById('skillsSection').scrollIntoView({behavior:'smooth'})"><i class="fas fa-info-circle"></i> More Info</button>
         </div>
       </div>
@@ -204,11 +267,19 @@
     <div id="projectsContainer" style="display:flex;flex-direction:column;gap:1rem;"></div>
   </section>
 
+  <!-- CERTIFICATIONS -->
+<section id="certificationsSection" class="fade-in" aria-labelledby="certificationsHeading">
+  <h2 id="certificationsHeading">Certifications</h2>
+  <div class="scroll-row" id="certificationsScroll" role="list"></div>
+</section>
+
   <!-- SKILLS -->
   <section id="skillsSection" class="fade-in" aria-labelledby="skillsSectionHeading">
     <h2 id="skillsSectionHeading">Skills</h2>
     <div class="skills-grid" id="skillsGrid" aria-hidden="false"></div>
   </section>
+
+
 
   <!-- PROFESSIONAL SUMMARY -->
   <section id="summarySection" class="fade-in" aria-labelledby="summaryHeading">
@@ -428,6 +499,42 @@ const experiences = [
   }
 ];
 
+const certifications = [
+    {
+    id: 'Python',
+    title: 'Learn Python 3',
+    provider: 'Codecademy',
+    year: '2025',
+    img: 'images/python.png',
+    description: 'Completed Codecademy Python 3 course covering fundamentals such as variables, data types, control flow, functions, object-oriented programming, and working with modules and libraries to build practical Python applications.'
+  },
+  {
+    id: 'sql',
+    title: 'Learn SQL',
+    provider: 'Codecademy',
+    year: '2025',
+    img: 'images/sql.png',
+    description: 'Completed SQL course on Codecademy covering database queries, joins, and data manipulation.'
+  },
+  {
+    id: 'excel',
+    title: 'Excel for Data Analysis',
+    provider: 'Codecademy',
+    year: '2025',
+    img: 'images/excel.png',
+    description: 'Advanced Excel techniques for data analysis including pivot tables, formulas, and dashboards.'
+  },
+  {
+    id: 'tableau',
+    title: 'Learn Tableau for Data Visualization',
+    provider: 'Codecademy',
+    year: '2024',
+    img: 'images/tableau.png',
+    description: 'Gained proficiency in Tableau for creating interactive dashboards and visualizing datasets effectively.'
+  }
+];
+
+
 function renderExperiences(){
   const container = document.getElementById('experienceScroll');
   container.innerHTML = '';
@@ -448,6 +555,27 @@ function renderExperiences(){
 }
 renderExperiences();
 
+function renderCertifications(){
+  const container = document.getElementById('certificationsScroll');
+  container.innerHTML = '';
+  certifications.forEach(cert=>{
+    const el = document.createElement('div');
+    el.className = 'media-card card';
+    el.setAttribute('role','listitem');
+    el.innerHTML = `
+      <img src="${cert.img}" alt="${cert.title}" onerror="this.src='images/default_project.png'">
+      <div class="card-body">
+        <h3>${cert.title}</h3>
+        <p>${cert.provider} · ${cert.year}</p>
+        <button class="btn" onclick="openCertification('${cert.id}')"><i class="fas fa-info-circle"></i> View Details</button>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+renderCertifications();
+
+
 function openExperience(id){
   const e = experiences.find(x=>x.id===id);
   if(!e) return;
@@ -467,6 +595,22 @@ function closeModal(){
   modal.style.display = 'none';
   modal.setAttribute('aria-hidden','true');
 }
+
+function openCertification(id){
+  const cert = certifications.find(c => c.id === id);
+  if(!cert) return;
+  const modal = document.getElementById('modal');
+  const body = document.getElementById('modalBody');
+  body.innerHTML = `
+    <img src="${cert.img}" alt="${cert.title}" onerror="this.src='images/default_project.png'">
+    <h3 style="margin-top:6px">${cert.title}</h3>
+    <p style="color:#ccc;margin-bottom:8px">${cert.provider} · ${cert.year}</p>
+    <p style="color:#ddd">${cert.description}</p>
+  `;
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden','false');
+}
+
 
 /* close modal on background click or Escape */
 document.getElementById('modal').addEventListener('click', (ev)=>{
@@ -575,6 +719,24 @@ loadProjects();
 
 /* Ensure fade-in triggers on load */
 window.addEventListener('load', applyFadeIn);
+
+// Function to hide overlay and enter portfolio
+function enterPortfolio(role) {
+  console.log(`${role} selected`); // optional: can use for analytics or customization
+  const overlay = document.getElementById('whosWatchingOverlay');
+  overlay.style.transition = 'opacity 0.6s ease';
+  overlay.style.opacity = 0;
+  setTimeout(() => overlay.style.display = 'none', 600);
+  
+  // Scroll to top of hero section after overlay disappears
+  document.getElementById('heroSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Ensure body is hidden until overlay is selected
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.style.visibility = 'visible';
+});
+
 
 </script>
 
