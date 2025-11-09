@@ -3,7 +3,16 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Aishwarya John Pole — Portfolio</title>
+<title>Aishwarya John Pole | Data Analyst & Web Developer Portfolio</title>
+<meta name="description" content="Portfolio of Aishwarya John Pole – Data Analyst and Web Developer. Explore projects in data analytics, visualization, and web development. View GitHub repositories and LinkedIn profile.">
+<meta name="keywords" content="Aishwarya John Pole, Data Analyst, Web Developer, Portfolio, SQL, Python, Tableau, React, JavaScript, GitHub, LinkedIn">
+<meta name="author" content="Aishwarya John Pole">
+<link rel="canonical" href="https://aishwaryajohnpole.netlify.app/">
+<meta property="og:title" content="Aishwarya John Pole | Data Analyst & Web Developer Portfolio">
+<meta property="og:description" content="Explore the portfolio and projects of Aishwarya John Pole, showcasing data analysis and web development skills.">
+<meta property="og:url" content="https://aishwaryajohnpole.netlify.app/">
+
+
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -301,7 +310,7 @@
 
     <div class="icons">
       <a href="https://www.linkedin.com/in/aishwarya-john-pole-b23452236" target="_blank" rel="noreferrer"><i class="fab fa-linkedin"></i></a>
-      <a href="https://github.com/Aishwaryajohn97" target="_blank" rel="noreferrer"><i class="fab fa-github"></i></a>
+      <a href="https://github.com/aishwaryajohnpole" target="_blank" rel="noreferrer"><i class="fab fa-github"></i></a>
       <a href="mailto:aishwaryajohnpolemadhu@gmail.com"><i class="fas fa-envelope"></i></a>
     </div>
 
@@ -323,9 +332,10 @@
 
       <div class="hero-content" role="region" aria-label="Hero content">
         <div class="hero-title">Aishwarya John Pole</div>
-        <div class="hero-title">Data Analyst Portfolio</div>
-        <div class="hero-sub">Data Analyst | Business Analyst</div>
-        <div class="hero-desc">MSc Data Science and Analytics graduate passionate about turning data into actionable insights. Experienced in SQL, Python, Tableau, and producing business dashboards.</div>
+        <div class="hero-sub">Data Analyst | Business Analyst | Full Stack Developer</div>
+        <div class="hero-desc">I am Aishwarya John Pole, a Data Analyst and Web Developer with experience in SQL, Python, Tableau, React, and JavaScript. 
+    I create dashboards, analyze data for actionable insights, and build responsive websites and applications. 
+    Check out my projects on </div>
 
         <div class="hero-buttons" role="toolbar">
           <button class="btn" id="previewResumeBtn" onclick="window.open('resume.pdf','_blank')" title="Preview resume"><i class="fas fa-eye"></i> Preview Resume</button>
@@ -484,7 +494,7 @@ async function populateHeroCarousel(){
   const track = document.getElementById('carouselTrack');
   // fetch repos from GitHub
   try{
-    const res = await fetch('https://api.github.com/users/Aishwaryajohn97/repos');
+    const res = await fetch('https://api.github.com/users/aishwaryajohnpole/repos');
     const data = await res.json();
     const top = (Array.isArray(data) ? data : []).slice(0,5);
     if(top.length === 0){
@@ -769,12 +779,12 @@ async function loadProjects() {
   container.innerHTML = '';
 
   try {
-    const res = await fetch('https://api.github.com/users/Aishwaryajohn97/repos');
+    const res = await fetch('https://api.github.com/users/aishwaryajohnpole/repos');
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error('No repos');
 
     const categories = {
-      "Data Science": { keywords: ['data', 'analysis', 'tableau', 'sql', 'python', 'ml', 'machine learning', 'predictive', 'analytics', 'eda', 'statistics','models','pre-trained'], list: [] },
+      "Data Science": { keywords: ['data', 'analysis', 'tableau', 'sql', 'python', 'ml', 'machine learning', 'predictive', 'analytics', 'eda', 'statistics','models','pre-trained','analyzes'], list: [] },
       "Web Development": { keywords: ['web', 'website', 'frontend', 'backend', 'react', 'html', 'css', 'javascript', 'node'], list: [] },
       "Other": { keywords: [], list: [] }
     };
@@ -862,7 +872,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Aishwarya John Pole",
+  "url": "https://aishwaryajohnpole.netlify.app/",
+  "sameAs": [
+    "https://github.com/aishwaryajohnpole",
+    "https://www.linkedin.com/in/aishwarya-john-pole-b23452236"
+  ],
+  "jobTitle": "Data Analyst & Web Developer",
+  "worksFor": {
+    "@type": "Organization",
+    "name": "Self-employed / Portfolio Projects"
+  }
+}
+</script>
+
 
 </body>
 </html>
